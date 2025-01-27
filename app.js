@@ -25,7 +25,8 @@ app.use(cors({
     allowedHeaders: 'Content-Type, Authorization',
 }));
 
-app.use('/api/stuff', stuffRoutes);
+
+app.use('/api/book', stuffRoutes);
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
