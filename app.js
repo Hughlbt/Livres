@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const path = require('path');
 
-const stuffRoutes = require('./routes/stuff');
+const booksRoutes = require('./routes/books');
 const userRoutes = require('./routes/user');
 
 mongoose.connect('mongodb+srv://Hugueslbt:ag8_Ermjt7wYSp$@cluster0.n9upm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',)
@@ -24,7 +24,7 @@ app.use(cors({
     allowedHeaders: 'Content-Type, Authorization',
 }));
 
-app.use('/api/book', stuffRoutes);
+app.use('/api/books', booksRoutes);
 app.use('/api/auth', userRoutes);
 app.use('/images', express.static(path.join(__dirname + '/images')));
 
