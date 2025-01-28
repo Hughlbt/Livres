@@ -17,4 +17,16 @@ const storage = multer.diskStorage({
     }
 });
 
-module.exports = multer({ storage: storage }).single('image');
+const fileFilter = (req, file, callback) => {
+    const extension = MIME_TYPES[file.mimetype];
+    if (extension === 'jpg' || extension === 'png') {
+        callback(null, true);
+    } else {
+        callback(null, false);
+    }
+};
+
+module.exports = multer({
+    storage: storage,
+    fileFilter: fileFilter
+}).single('image');
