@@ -8,20 +8,28 @@ exports.getBestRating = (req, res) => {
 };
 
 exports.addBook = (req, res, next) => {
-    const bookObject = { ...req.body };
+    console.log(req.body);
+    console.log(req.body.book);
+    console.log(JSON.parse(req.body.book));
+    const bookObject = { ...JSON.parse(req.body.book) };
     delete bookObject._id;
     delete bookObject.userId;
+    console.log(bookObject);
+
     const book = new Book({
         ...bookObject,
         userId: req.auth.userId,
         imageUrl: req.file
-            ? `/images/${req.file.filename}`  // Utilisation du chemin relatif
+            ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
             : bookObject.imageUrl
     });
-
+    console.log(book);
     book.save()
         .then(() => { res.status(201).json({ message: 'Livre ajouté !' }) })
-        .catch(error => { res.status(400).json({ error }) });
+        .catch(error => {
+            console.log(error);
+            res.status(400).json({ error })
+        });
 };
 exports.modifyBook = (req, res, next) => {
     const bookObject = req.file ? {
