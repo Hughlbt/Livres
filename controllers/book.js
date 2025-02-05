@@ -8,13 +8,9 @@ exports.getBestRating = (req, res) => {
 };
 
 exports.addBook = (req, res, next) => {
-    console.log(req.body);
-    console.log(req.body.book);
-    console.log(JSON.parse(req.body.book));
     const bookObject = { ...JSON.parse(req.body.book) };
     delete bookObject._id;
     delete bookObject.userId;
-    console.log(bookObject);
 
     const book = new Book({
         ...bookObject,
@@ -23,7 +19,7 @@ exports.addBook = (req, res, next) => {
             ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
             : bookObject.imageUrl
     });
-    console.log(book);
+
     book.save()
         .then(() => { res.status(201).json({ message: 'Livre ajouté !' }) })
         .catch(error => {
@@ -33,7 +29,7 @@ exports.addBook = (req, res, next) => {
 };
 exports.modifyBook = (req, res, next) => {
     const bookObject = req.file ? {
-        ...JSON.parse(req.body.thing),
+        ...JSON.parse(req.body.book),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
 
@@ -57,13 +53,9 @@ exports.deleteBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
         .then(book => {
             if (book.userId != req.auth.userId) {
-                console.log('userId du book:', book.userId);
-                console.log('userId du token:', req.auth.userId);
                 return res.status(401).json({ message: 'Not authorized' });
             } else {
-                console.log('Image URL:', book.imageUrl);
                 const filename = book.imageUrl.split('/images/')[1];
-                console.log('Nom du fichier:', filename);
 
                 fs.unlink(`images/${filename}`, (err) => {
                     if (err) {
@@ -116,15 +108,4 @@ exports.rateBook = (req, res, next) => {
                 .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
-};
-
-/* Juste pour la phase de dev à supprimer */
-exports.deleteAll = (req, res) => {
-    Book.deleteMany({})
-        .then(() => {
-            res.status(200).json({ message: 'Tous les livres ont été supprimés.' });
-        })
-        .catch(err => {
-            res.status(500).json({ message: 'Erreur lors de la suppression des livres', error: err });
-        });
 };
