@@ -90,6 +90,8 @@ exports.getAllBooks = (req, res, next) => {
 
 exports.rateBook = (req, res, next) => {
     const { rating } = req.body;
+    const userId = req.auth.userId;
+
     if (rating === undefined || rating < 0 || rating > 5) {
         return res.status(400).json({ message: "La note doit être un nombre entre 0 et 5." });
     }
@@ -100,11 +102,18 @@ exports.rateBook = (req, res, next) => {
                 return res.status(404).json({ message: "Livre non trouvé." });
             }
 
-            Book.updateOne(
-                { _id: req.params.id },
-                { $set: { rating: rating } }
-            )
-                .then(() => res.status(200).json({ message: "Note mise à jour !" }))
+            if (book.ratings.some(r => r.userId === userId)) {
+                return res.status(400).json({ message: "Vous avez déjà noté ce livre." });
+            }
+
+            book.ratings.push({ userId, grade: rating });
+
+            const totalRatings = book.ratings.length;
+            const sumRatings = book.ratings.reduce((sum, r) => sum + r.grade, 0);
+            book.averageRating = sumRatings / totalRatings;
+
+            book.save()
+                .then(updatedBook => res.status(200).json(updatedBook))
                 .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
