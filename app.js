@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,12 +9,7 @@ const path = require('path');
 const booksRoutes = require('./routes/books');
 const userRoutes = require('./routes/user');
 
-mongoose.connect('mongodb+srv://Hugueslbt:ag8_Ermjt7wYSp$@cluster0.n9upm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',)
-    /* J'ai supprimé 
-    {useNewUrlParser: true,
-    useUnifiedTopology: true,}
-    car ils sont obsolètes depuis les denières versions de mongoose */
-
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
