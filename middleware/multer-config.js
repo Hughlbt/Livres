@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, callback) => {
         if (!file) {
-            return callback(new Error("Aucun fichier reçu"), null);
+            return callback(null, null);
         }
         const name = file.originalname.split(' ').join('_').replace(/\.[^/.]+$/, "");
         const extension = MIME_TYPES[file.mimetype];
@@ -41,7 +41,7 @@ const uploadAndOptimize = (req, res, next) => {
     upload(req, res, async (err) => {
         if (err) return res.status(400).json({ error: err.message });
 
-        if (!req.file) return res.status(400).json({ error: 'Aucune image fournie' });
+        if (!req.file) return next();
 
         try {
             const imagePath = req.file.path;
