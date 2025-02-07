@@ -14,8 +14,14 @@ const storage = multer.diskStorage({
         callback(null, 'images');
     },
     filename: (req, file, callback) => {
-        const name = file.originalname.split(' ').join('_');
+        if (!file) {
+            return callback(new Error("Aucun fichier reçu"), null);
+        }
+        const name = file.originalname.split(' ').join('_').replace(/\.[^/.]+$/, "");
         const extension = MIME_TYPES[file.mimetype];
+        if (!extension) {
+            return callback(new Error("Type de fichier non supporté"), null);
+        }
         callback(null, name + Date.now() + '.' + extension);
     }
 });
@@ -25,7 +31,7 @@ const fileFilter = (req, file, callback) => {
     if (extension) {
         callback(null, true);
     } else {
-        callback(null, false);
+        callback(new Error("Type de fichier non autorisé"), false);
     }
 };
 
@@ -39,7 +45,7 @@ const uploadAndOptimize = (req, res, next) => {
 
         try {
             const imagePath = req.file.path;
-            const optimizedImageName = 'optimized-' + req.file.filename.split('.')[0] + '.webp';
+            const optimizedImageName = 'optimized-' + path.parse(req.file.filename).name + '.webp';
             const optimizedImagePath = path.join('images', optimizedImageName);
 
             await sharp(imagePath)
