@@ -110,7 +110,12 @@ exports.rateBook = (req, res, next) => {
 
             const totalRatings = book.ratings.length;
             const sumRatings = book.ratings.reduce((sum, r) => sum + r.grade, 0);
-            book.averageRating = sumRatings / totalRatings;
+
+            function financial(x) {
+                return Number.parseFloat(x).toFixed(1);
+            }
+
+            book.averageRating = financial(sumRatings / totalRatings);
 
             book.save()
                 .then(updatedBook => res.status(200).json(updatedBook))
@@ -118,3 +123,4 @@ exports.rateBook = (req, res, next) => {
         })
         .catch(error => res.status(500).json({ error }));
 };
+
